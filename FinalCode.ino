@@ -12,18 +12,21 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
-#include <DIYables_IRcontroller.h>
 
-#define IR_RECEIVER_PIN 2
-DIYables_IRcontroller_17 irController(IR_RECEIVER_PIN, 200);
+// #include <IRremote.h>
+// #define IR_RECEIVE_PIN 2
+
+#include <LiquidCrystal_I2C.h>
+int lcdColumns = 16;
+int lcdRows = 2;
+LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);  
 
 Adafruit_MPU6050 mpu;
 
-
 const char* googleApiKey = "AIzaSyByy9mROHxlLmc2v_oforADV6nvOpq5X5w";
 
-const char* ssid = "Parth iphone (2802)";               // Your Wi-Fi SSID
-const char* password = "hotspot123$";       // Your Wi-Fi Password
+const char* ssid = "DomainNorthgate_Resident_SS";               // Your Wi-Fi SSID
+const char* password = "Shaan123!";       // Your Wi-Fi Password
 const char* ntfyTopic = "JM4j2e0yT6akacaQ";    // ntfy.sh topic name
 
 WifiLocation location (googleApiKey);
@@ -50,17 +53,34 @@ void setClock () {
 
 
 void setup() {
-    Serial.begin(115200);
+    // Serial.begin(115200);
 
-    irController.begin();
+    // IrReceiver.begin(IR_RECEIVE_PIN);
 
     // Connect to Wi-Fi
+    // initialize LCD
+    lcd.init();
+    // turn on LCD backlight                      
+    lcd.backlight();
+    lcd.setCursor(0, 0);
+
     WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED) {
+        lcd.setCursor(0, 0);
+        lcd.print("Connecting to Wifi");
         delay(1000);
         Serial.println("Connecting to WiFi...");
+        //LCD output
+        lcd.setCursor(0, 0);
+        lcd.print("Connecting to WiFi.");
+
     }
+
     Serial.println("Connected to WiFi");
+    
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Connected to WiFi");
 
     setClock ();
     location_t loc = location.getGeoFromWiFi();
@@ -134,52 +154,41 @@ void sendTestNotification() {
 
 void loop() {
 
-    Key17 key = irController.getKey();
-
-    // if (key != Key17::NONE) {
-    //     switch (key) {
-    //         case Key17::KEY_1:
-    //             Serial.println("1");
-    //             on = true;
-    //             // TODO: YOUR CONTROL
-    //             break;
-
-    //         case Key17::KEY_0:
-    //             Serial.println("0");
-    //             on = false;
-    //             break;
-    //     }
+    
+    // if (IrReceiver.decode()) {
+    //     IrReceiver.resume();
+    //     Serial.println(IrReceiver.decodedIRData.command);
     // }
 
-    // while(on) {
-        if(mpu.getMotionInterruptStatus()) {
-            /* Get new sensor events with the readings */
-            sensors_event_t a, g, temp;
-            mpu.getEvent(&a, &g, &temp);
+   
+    if(mpu.getMotionInterruptStatus()) {
+        /* Get new sensor events with the readings */
+        sensors_event_t a, g, temp;
+        mpu.getEvent(&a, &g, &temp);
 
-            /* Print out the values */
-            Serial.print("AccelX:");
-            Serial.print(a.acceleration.x);
-            Serial.print(",");
-            Serial.print("AccelY:");
-            Serial.print(a.acceleration.y);
-            Serial.print(",");
-            Serial.print("AccelZ:");
-            Serial.print(a.acceleration.z);
-            Serial.print(", ");
-            Serial.print("GyroX:");
-            Serial.print(g.gyro.x);
-            Serial.print(",");
-            Serial.print("GyroY:");
-            Serial.print(g.gyro.y);
-            Serial.print(",");
-            Serial.print("GyroZ:");
-            Serial.print(g.gyro.z);
-            Serial.println("");
+        /* Print out the values */
+        Serial.print("AccelX:");
+        Serial.print(a.acceleration.x);
+        Serial.print(",");
+        Serial.print("AccelY:");
+        Serial.print(a.acceleration.y);
+        Serial.print(",");
+        Serial.print("AccelZ:");
+        Serial.print(a.acceleration.z);
+        Serial.print(", ");
+        Serial.print("GyroX:");
+        Serial.print(g.gyro.x);
+        Serial.print(",");
+        Serial.print("GyroY:");
+        Serial.print(g.gyro.y);
+        Serial.print(",");
+        Serial.print("GyroZ:");
+        Serial.print(g.gyro.z);
+        Serial.println("");
 
-            sendTestNotification();
-        }
-    // }
+        sendTestNotification();
+    }
+  
 
   // sendTestNotification();
     delay(10);  // Wait 10 seconds between notifications
