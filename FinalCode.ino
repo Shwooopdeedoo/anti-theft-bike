@@ -245,6 +245,7 @@ bool detectMovement(float movementThreshold) {
   } else {
     return false;  // No movement detected
   }
+    delay(100);
 }
 
 void loop() {
