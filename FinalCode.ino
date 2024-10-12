@@ -256,12 +256,12 @@ void loop() {
     // }
 
    
-    if(mpu.detectMovement(1.0)) {
+    if(detectMovement(1.0)) {
         /* Get new sensor events with the readings */
 
         delay(2000);
 
-        if(mpu.detectMovement(1.0)) {
+        if(detectMovement(1.0)) {
             
             Serial.print("Movement Detected!");
 
