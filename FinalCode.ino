@@ -17,6 +17,7 @@
 // #define IR_RECEIVE_PIN 2
 
 #include <LiquidCrystal_I2C.h>
+
 int lcdColumns = 16;
 int lcdRows = 2;
 LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);  
@@ -53,7 +54,7 @@ void setClock () {
 
 
 void setup() {
-    // Serial.begin(115200);
+    Serial.begin(115200);
 
     // IrReceiver.begin(IR_RECEIVE_PIN);
 
@@ -62,25 +63,90 @@ void setup() {
     lcd.init();
     // turn on LCD backlight                      
     lcd.backlight();
-    lcd.setCursor(0, 0);
+
+    lcd.clear();
+    
 
     WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED) {
+       //LCD output
+        
         lcd.setCursor(0, 0);
-        lcd.print("Connecting to Wifi");
-        delay(1000);
+        lcd.print("WiFi: Connecting");
+
+
+        lcd.setCursor(0,1);
+        lcd.print("[>>>           ]");
+        delay(300);
+      
+        lcd.setCursor(0, 1);
+        lcd.print("[ >>>          ]");
+        delay(300);
+        
+        lcd.setCursor(0, 1);
+        lcd.print("[  >>>         ]");
+        delay(300);
+
+        lcd.setCursor(0, 1);
+        lcd.print("[   >>>        ]");
+        delay(300);
+
+        lcd.setCursor(0, 1);
+        lcd.print("[    >>>       ]");
+        delay(300);
+
+        lcd.setCursor(0, 1);
+        lcd.print("[     >>>      ]");
+        delay(300);
+
+        lcd.setCursor(0, 1);
+        lcd.print("[      >>>     ]");
+        delay(300);
+
+        lcd.setCursor(0, 1);
+        lcd.print("[       >>>    ]");
+        delay(300);
+
+        lcd.setCursor(0, 1);
+        lcd.print("[        >>>   ]");
+        delay(300);
+
+        lcd.setCursor(0, 1);
+        lcd.print("[         >>>  ]");
+        delay(300);
+
+        lcd.setCursor(0, 1);
+        lcd.print("[          >>> ]");
+        delay(300);
+
+        lcd.setCursor(0, 1);
+        lcd.print("[           >>>]");
+        delay(300);
+
+        lcd.setCursor(0, 1);
+        lcd.print("[>           >>]");
+        delay(300);
+
+        lcd.setCursor(0, 1);
+        lcd.print("[>>           >]");
+        delay(300);
+
         Serial.println("Connecting to WiFi...");
-        //LCD output
-        lcd.setCursor(0, 0);
-        lcd.print("Connecting to WiFi.");
 
     }
 
     Serial.println("Connected to WiFi");
     
     lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("WiFi: Connecting");
+    lcd.setCursor(0, 1);
+    lcd.print("Connected!");
+    delay(1500);
+
+    lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print("Connected to WiFi");
+    lcd.print("WiFi: Connected");
 
     setClock ();
     location_t loc = location.getGeoFromWiFi();
@@ -135,6 +201,7 @@ void sendTestNotification() {
         int httpResponseCode = http.POST(message);
 
         if (httpResponseCode > 0) {
+            
             Serial.print("Notification sent, response code: ");
             Serial.println(httpResponseCode);
             String response = http.getString();
@@ -186,7 +253,36 @@ void loop() {
         Serial.print(g.gyro.z);
         Serial.println("");
 
-        sendTestNotification();
+        delay(5000);
+
+        if(mpu.getMotionInterruptStatus()) {
+            
+            Serial.print("Movement Detected!");
+
+            lcd.clear();
+            lcd.setCursor(0,0);
+            lcd.print("WiFi: Connected");
+            lcd.setCursor(0,1);
+            lcd.print("Motion Detected!");
+            delay(3500);
+            lcd.clear();
+            lcd.setCursor(0,0);
+            lcd.print("WiFi: Connected");
+            sendTestNotification();
+        }
+        else {
+            Serial.println("False Alarm!");
+            Serial.println("");
+
+            lcd.setCursor(0,1);
+            lcd.print("False Alarm!");
+            delay(3500);
+            lcd.clear();
+            lcd.setCursor(0,0);
+            lcd.print("WiFi: Connected");
+        }
+        
+        
     }
   
 
