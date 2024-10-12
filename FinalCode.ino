@@ -24,6 +24,14 @@ LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);
 
 Adafruit_MPU6050 mpu;
 
+// set pin numbers
+const int buttonPin = 4;  // the number of the pushbutton pin
+const int ledPin =  5;    // the number of the LED pin
+
+// variable for storing the pushbutton status 
+int buttonState = 0;
+int buttonCount = 0;
+
 const char* googleApiKey = "AIzaSyByy9mROHxlLmc2v_oforADV6nvOpq5X5w";
 
 const char* ssid = "DomainNorthgate_Resident_SS";               // Your Wi-Fi SSID
@@ -33,6 +41,8 @@ const char* ntfyTopic = "JM4j2e0yT6akacaQ";    // ntfy.sh topic name
 WifiLocation location (googleApiKey);
 
 bool on = false;
+
+
 
 void setClock () {
     configTime (0, 0, "pool.ntp.org", "time.nist.gov");
@@ -54,9 +64,13 @@ void setClock () {
 
 
 void setup() {
+
     Serial.begin(115200);
 
-    // IrReceiver.begin(IR_RECEIVE_PIN);
+    // initialize the pushbutton pin as an input
+    pinMode(buttonPin, INPUT);
+    // initialize the LED pin as an output
+    pinMode(ledPin, OUTPUT);
 
     // Connect to Wi-Fi
     // initialize LCD
@@ -68,6 +82,7 @@ void setup() {
     
 
     WiFi.begin(ssid, password);
+
     while (WiFi.status() != WL_CONNECTED) {
        //LCD output
         
@@ -142,11 +157,15 @@ void setup() {
     lcd.print("WiFi: Connecting");
     lcd.setCursor(0, 1);
     lcd.print("Connected!");
-    delay(1500);
+    delay(2500);
 
     lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("WiFi: Connected");
+
+    lcd.setCursor(0, 0);
+    lcd.print("Systems Starting");
+    lcd.setCursor(0, 1);
+    lcd.print("                    ");
+   
 
     setClock ();
     location_t loc = location.getGeoFromWiFi();
@@ -167,12 +186,6 @@ void setup() {
     }
     Serial.println("MPU6050 Found!");
 
-    mpu.setHighPassFilter(MPU6050_HIGHPASS_0_63_HZ);
-    mpu.setMotionDetectionThreshold(1);
-    mpu.setMotionDetectionDuration(20);
-    mpu.setInterruptPinLatch(true);	// Keep it latched.  Will turn off when reinitialized.
-    mpu.setInterruptPinPolarity(true);
-    mpu.setMotionInterrupt(true);
     mpu.setAccelerometerRange(MPU6050_RANGE_2_G);  // Adjust based on your needs
     mpu.setGyroRange(MPU6050_RANGE_250_DEG); // Set gyroscope range (default is ±250 degrees per second)
     mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);   // Set the data rate
@@ -245,19 +258,35 @@ bool detectMovement(float movementThreshold) {
   } else {
     return false;  // No movement detected
   }
-    delay(100);
+  delay(1000);
 }
 
 void loop() {
-
+    buttonState = digitalRead(buttonPin);
+    Serial.println(buttonCount);
     
-    // if (IrReceiver.decode()) {
-    //     IrReceiver.resume();
-    //     Serial.println(IrReceiver.decodedIRData.command);
-    // }
+    if (buttonState == HIGH) {    
+        buttonCount++;
+        delay(1000);
+    }
+
+    if(buttonCount % 2 == 0 || buttonCount == 0) {
+        digitalWrite(ledPin, LOW);
+        lcd.setCursor(0,0);
+        lcd.print("  Not Detecting  ");
+        lcd.setCursor(0,1);
+        lcd.print("     Motion    ");
+    }
+    else {
+        digitalWrite(ledPin, HIGH);
+        lcd.setCursor(0,0);
+        lcd.print("   Detecting     ");
+        lcd.setCursor(0,1);
+        lcd.print("     Motion       ");
+    }
 
    
-    if(detectMovement(1.0)) {
+    if(detectMovement(1.0) && buttonCount % 2 != 0) {
         /* Get new sensor events with the readings */
 
         delay(2000);
@@ -266,33 +295,27 @@ void loop() {
             
             Serial.print("Movement Detected!");
 
-            lcd.clear();
             lcd.setCursor(0,0);
-            lcd.print("WiFi: Connected");
+            lcd.print("     Motion    ");
+
             lcd.setCursor(0,1);
-            lcd.print("Motion Detected!");
-            delay(3500);
-            lcd.clear();
-            lcd.setCursor(0,0);
-            lcd.print("WiFi: Connected");
+            lcd.print("    Detected      ");
             sendTestNotification();
+            delay(2500);
+            lcd.clear();
+            
         }
         else {
             Serial.println("False Alarm!");
             Serial.println("");
 
-            lcd.setCursor(0,1);
-            lcd.print("False Alarm!");
-            delay(3500);
-            lcd.clear();
             lcd.setCursor(0,0);
-            lcd.print("WiFi: Connected");
-        }
-        
-        
-    }
-  
+            lcd.clear();
+            lcd.print("  False Alarm!");
+            delay(2500);
+            lcd.clear();
 
-  // sendTestNotification();
+        }     
+    }
     delay(10);  // Wait 10 seconds between notifications
 }
