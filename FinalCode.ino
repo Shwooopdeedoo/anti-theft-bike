@@ -173,6 +173,9 @@ void setup() {
     mpu.setInterruptPinLatch(true);	// Keep it latched.  Will turn off when reinitialized.
     mpu.setInterruptPinPolarity(true);
     mpu.setMotionInterrupt(true);
+    mpu.setAccelerometerRange(MPU6050_RANGE_2_G);  // Adjust based on your needs
+    mpu.setGyroRange(MPU6050_RANGE_250_DEG); // Set gyroscope range (default is ±250 degrees per second)
+    mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);   // Set the data rate
 
     Serial.println("");
     delay(100);
@@ -219,6 +222,31 @@ void sendTestNotification() {
     
 }
 
+bool detectMovement(float movementThreshold) {
+  // Get accelerometer and gyroscope events
+  sensors_event_t accel, gyro, temp;
+  mpu.getEvent(&accel, &gyro, &temp);
+
+  // Print accelerometer data (in m/s²)
+  Serial.print("Accel X: "); Serial.print(accel.acceleration.x); Serial.print(" ");
+  Serial.print("Accel Y: "); Serial.print(accel.acceleration.y); Serial.print(" ");
+  Serial.print("Accel Z: "); Serial.println(accel.acceleration.z);
+
+  // Convert m/s² to Gs (1G = 9.81 m/s²)
+  float accelX = accel.acceleration.x / 9.81;
+  float accelY = accel.acceleration.y / 9.81;
+  float accelZ = accel.acceleration.z / 9.81;
+
+  // Check if movement exceeds the threshold on any axis
+  if (abs(accelX) > movementThreshold || 
+      abs(accelY) > movementThreshold || 
+      abs(accelZ) > movementThreshold) {
+    return true;  // Movement detected
+  } else {
+    return false;  // No movement detected
+  }
+}
+
 void loop() {
 
     
@@ -228,34 +256,12 @@ void loop() {
     // }
 
    
-    if(mpu.getMotionInterruptStatus()) {
+    if(mpu.detectMovement(1.0)) {
         /* Get new sensor events with the readings */
-        sensors_event_t a, g, temp;
-        mpu.getEvent(&a, &g, &temp);
 
-        /* Print out the values */
-        Serial.print("AccelX:");
-        Serial.print(a.acceleration.x);
-        Serial.print(",");
-        Serial.print("AccelY:");
-        Serial.print(a.acceleration.y);
-        Serial.print(",");
-        Serial.print("AccelZ:");
-        Serial.print(a.acceleration.z);
-        Serial.print(", ");
-        Serial.print("GyroX:");
-        Serial.print(g.gyro.x);
-        Serial.print(",");
-        Serial.print("GyroY:");
-        Serial.print(g.gyro.y);
-        Serial.print(",");
-        Serial.print("GyroZ:");
-        Serial.print(g.gyro.z);
-        Serial.println("");
+        delay(2000);
 
-        delay(5000);
-
-        if(mpu.getMotionInterruptStatus()) {
+        if(mpu.detectMovement(1.0)) {
             
             Serial.print("Movement Detected!");
 
