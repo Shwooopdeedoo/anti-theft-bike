@@ -286,12 +286,12 @@ void loop() {
     }
 
    
-    if(detectMovement(1.0) && buttonCount % 2 != 0) {
+    if(detectMovement(.75) && buttonCount % 2 != 0) {
         /* Get new sensor events with the readings */
 
         delay(2000);
 
-        if(detectMovement(1.0)) {
+        if(detectMovement(.75)) {
             
             Serial.print("Movement Detected!");
 
