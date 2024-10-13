@@ -32,11 +32,11 @@ const int ledPin =  5;    // the number of the LED pin
 int buttonState = 0;
 int buttonCount = 0;
 
-const char* googleApiKey = "AIzaSyByy9mROHxlLmc2v_oforADV6nvOpq5X5w";
+const char* googleApiKey = "apikey";
 
-const char* ssid = "DomainNorthgate_Resident_SS";               // Your Wi-Fi SSID
-const char* password = "Shaan123!";       // Your Wi-Fi Password
-const char* ntfyTopic = "JM4j2e0yT6akacaQ";    // ntfy.sh topic name
+const char* ssid = "wifiname";               // Your Wi-Fi SSID
+const char* password = "wifipw!";       // Your Wi-Fi Password
+const char* ntfyTopic = "ntfytopic";    // ntfy.sh topic name
 
 WifiLocation location (googleApiKey);
 
