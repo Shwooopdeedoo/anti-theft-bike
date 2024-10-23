@@ -34,9 +34,9 @@ int buttonCount = 0;
 
 const char* googleApiKey = "apikey";
 
-const char* ssid = "wifiname";               // Your Wi-Fi SSID
-const char* password = "wifipw!";       // Your Wi-Fi Password
-const char* ntfyTopic = "ntfytopic";    // ntfy.sh topic name
+const char* ssid = "wifiname";               // Wi-Fi SSID
+const char* password = "wifipw!";       // Wi-Fi Password
+const char* ntfyTopic = "ntfytopic";    // ntfy.sh topic 
 
 WifiLocation location (googleApiKey);
 
@@ -72,7 +72,6 @@ void setup() {
     // initialize the LED pin as an output
     pinMode(ledPin, OUTPUT);
 
-    // Connect to Wi-Fi
     // initialize LCD
     lcd.init();
     // turn on LCD backlight                      
@@ -173,11 +172,10 @@ void setup() {
     Serial.println ("Accuracy: " + String (loc.accuracy));
 
     while (!Serial)
-        delay(10); // will pause Zero, Leonardo, etc until serial console opens
+        delay(10); 
 
     Serial.println("Adafruit MPU6050 test!");
 
-    // Try to initialize!
     if (!mpu.begin()) {
         Serial.println("Failed to find MPU6050 chip");
         while (1) {
@@ -186,9 +184,9 @@ void setup() {
     }
     Serial.println("MPU6050 Found!");
 
-    mpu.setAccelerometerRange(MPU6050_RANGE_2_G);  // Adjust based on your needs
-    mpu.setGyroRange(MPU6050_RANGE_250_DEG); // Set gyroscope range (default is ±250 degrees per second)
-    mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);   // Set the data rate
+    mpu.setAccelerometerRange(MPU6050_RANGE_2_G);  
+    mpu.setGyroRange(MPU6050_RANGE_250_DEG); 
+    mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);   
 
     Serial.println("");
     delay(100);
@@ -202,7 +200,7 @@ void sendTestNotification() {
     if (WiFi.status() == WL_CONNECTED) {
         HTTPClient http;
 
-        // URL for your ntfy topic
+        // URL for ntfy topic
         String serverPath = "https://ntfy.sh/" + String(ntfyTopic);
 
         // Send notification request
@@ -287,8 +285,6 @@ void loop() {
 
    
     if(detectMovement(.75) && buttonCount % 2 != 0) {
-        /* Get new sensor events with the readings */
-
         delay(2000);
 
         if(detectMovement(.75)) {
@@ -317,5 +313,5 @@ void loop() {
 
         }     
     }
-    delay(10);  // Wait 10 seconds between notifications
+    delay(10); 
 }
